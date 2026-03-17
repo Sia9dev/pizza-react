@@ -4,17 +4,18 @@ import Categories from "../component/Categories";
 import Sort from "../component/Sort";
 import PizzaBlock from "../component/PizzaBlock";
 
-const Home = () => {
+const Home = ({ searchValue }) => {
   const [items, setItems] = useState([]);
   const [categoryId, setCategoryId] = useState(0);
   const [sortType, setSortType] = useState({
     name: "популярности",
     sortProperty: "rating",
   });
+  const search = searchValue ? `&search=${searchValue}` : "";
 
   useEffect(() => {
     fetch(
-      `https://69afed10c63dd197febaa388.mockapi.io/pizzas?${categoryId > 0 ? `category=${categoryId}` : ""}&sortBy=${sortType.sortProperty}&order=desc `,
+      `https://69afed10c63dd197febaa388.mockapi.io/pizzas?${categoryId > 0 ? `category=${categoryId}` : ""}&sortBy=${sortType.sortProperty}&order=desc${search}`,
     )
       .then((res) => {
         if (!res.ok) return [];
@@ -23,7 +24,9 @@ const Home = () => {
       .then((arr) => {
         setItems(Array.isArray(arr) ? arr : []);
       });
-  }, [categoryId, sortType]);
+  }, [categoryId, sortType, searchValue]);
+
+  const pizzas = items.map((obj) => <PizzaBlock key={obj.id} {...obj} />);
 
   return (
     <>
@@ -37,13 +40,10 @@ const Home = () => {
       </div>
       <h2 className="content__title">Все пиццы</h2>
       <div className="content__items">
-        {items.length > 0 ? (
-          items.map((obj) => <PizzaBlock key={obj.id} {...obj} />)
-        ) : (
-          <div>Нет пицц</div>
-        )}
+        {items.length > 0 ? pizzas : <div>Нет пицц</div>}
       </div>
     </>
   );
 };
+
 export default Home;
